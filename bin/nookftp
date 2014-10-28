@@ -1,0 +1,19 @@
+#!/usr/bin/env node
+
+/*
+ nookfs
+ Copyright (c) 2014 Yaroslav Gaponov <yaroslav.gaponov@gmail.com>
+*/
+
+if (process.argv.length !== 3) {
+    console.log('usage: nookftp port');
+    process.exit();
+}
+
+var FtpServer = require('../').FtpServer;
+var ftp = FtpServer.createFtpServer(process.argv[2]);
+ftp.start();
+
+process.on('exit', function(code) {
+    ftp.stop();
+});

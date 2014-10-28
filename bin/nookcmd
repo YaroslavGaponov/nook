@@ -1,0 +1,103 @@
+#!/usr/bin/env node
+
+/*
+ nookfs
+ Copyright (c) 2014 Yaroslav Gaponov <yaroslav.gaponov@gmail.com>
+*/
+
+var fs = require('fs');
+var Banner = require('../').Banner;
+var API = require('../').API;
+
+console.log(Banner);
+
+function help() {
+    console.log('usage: nookcmd catalog|upload|download|remove {file}');
+}
+
+
+switch (process.argv.length) {
+    case 3:
+        switch (process.argv[2]) {
+            case 'catalog':
+                var client = new API();
+                client
+                    .once('connected', function() {
+                        console.log('connected');
+                        client.files(function(files) {
+                            if (files.length > 0) {
+                                console.log('---------');
+                                console.log('+ ' + files.join('\n+ '));
+                                console.log('---------');
+                            }
+                            console.log('total ', files.length);
+                            client.disconnect();
+                        })
+                    })
+                    .once('disconnected', function() {
+                        console.log('disconnected');
+                        process.exit();
+                    })
+                    .connect();
+                break;
+            default:
+                help();
+        }
+        break;
+    case 4:
+        switch (process.argv[2]) {
+            case 'upload':
+                var client = new API();
+                client
+                    .once('connected', function() {
+                        console.log('connected');
+                        client.upload(process.argv[3], fs.createReadStream(process.argv[3]), function(error) {
+                            console.log('error: ',error);
+                            client.disconnect();
+                        })
+                    })
+                    .once('disconnected', function() {
+                        console.log('disconnected');
+                        process.exit();
+                    })
+                    .connect();
+                break;
+            case 'download':
+                var client = new API();
+                client
+                    .once('connected', function() {
+                        console.log('connected');
+                        client.download(process.argv[3], fs.createWriteStream(process.argv[3]), function(error) {
+                            console.log('error: ', error);
+                            client.disconnect();
+                        })
+                    })
+                    .once('disconnected', function() {
+                        console.log('disconnected');
+                        process.exit();
+                    })
+                    .connect();
+                break;
+            case 'remove':
+                var client = new API();
+                client
+                    .once('connected', function() {
+                        console.log('connected');
+                        client.remove(process.argv[3], function(error) {
+                            console.log('error: ', error);
+                            client.disconnect();
+                        })
+                    })
+                    .once('disconnected', function() {
+                        console.log('disconnected');
+                        process.exit();
+                    })
+                    .connect();
+                break;                
+            default:
+                help();
+        }
+        break;
+    default:
+        help();
+}

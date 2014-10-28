@@ -1,0 +1,30 @@
+{
+  "name": "nook",
+  "version": "0.0.1",
+  "description": "Distributed File System",
+  "main": "index.js",
+  "bin": {
+    "nookchunk": "./bin/nookchunk",
+    "nookmaster": "./bin/nookmaster",
+    "nookcmd": "./bin/nookcmd",
+    "nookftp": "./bin/nookftp"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:YaroslavGaponov/nook.git"
+  },
+  "keywords": [
+    "nookfs",
+    "distributed",
+    "fs"
+  ],
+  "author": "Yaroslav Gaponov",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/YaroslavGaponov/nook/issues"
+  },
+  "homepage": "https://github.com/YaroslavGaponov/nook"
+}

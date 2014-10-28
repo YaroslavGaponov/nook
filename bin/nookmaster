@@ -1,0 +1,14 @@
+#!/usr/bin/env node
+
+/*
+ nookfs
+ Copyright (c) 2014 Yaroslav Gaponov <yaroslav.gaponov@gmail.com>
+*/
+
+var MasterServer = require('../').MasterServer;
+var ms = new MasterServer();
+ms.start();
+
+process.on('exit', function(code) {
+    ms.stop();
+});

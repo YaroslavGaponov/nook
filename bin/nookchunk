@@ -1,0 +1,19 @@
+#!/usr/bin/env node
+
+/*
+ nookfs
+ Copyright (c) 2014 Yaroslav Gaponov <yaroslav.gaponov@gmail.com>
+*/
+
+if (process.argv.length < 3) {
+    console.log('usage: nookchunk chunkServerID');
+    process.exit();
+}
+
+var ChunkServer = require('../').ChunkServer;
+var cs = new ChunkServer(process.argv[2]);
+cs.start();
+
+process.on('exit', function(code) {
+    cs.stop();
+});

@@ -1,0 +1,14 @@
+{
+  "LOG_LEVEL": 31,
+  "UNICAST_SERVER": {
+    "device": ["eth0", "en1"],
+    "family": "IPv4"
+  },
+  "BROADCAST_SERVER": {
+    "protocol": "udp4",
+    "host": "224.2.2.4",
+    "port": 7878,
+    "ttl": 3
+  },
+  "CHUNK_LENGTH": 8192
+}
