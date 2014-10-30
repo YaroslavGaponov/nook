@@ -10,5 +10,7 @@
     "port": 7878,
     "ttl": 3
   },
-  "CHUNK_LENGTH": 8192
+  "CHUNK_LENGTH": 8192,
+  "CACHE_LIMIT": 500,
+  "CACHE_INTERVAL": 10000
 }

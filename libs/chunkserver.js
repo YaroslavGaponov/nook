@@ -9,9 +9,11 @@ var Listener = require('./listener');
 var Utils = require('./utils');
 var Storage = require('./storage');
 var Logger = require('./logger');
+var Cache = require('./cache');
 
 var fs = require('fs');
 var path  = require('path');
+var util = require('util');
 
 var logger = Logger('ChunkServer', Settings.LOG_LEVEL);
 
@@ -19,6 +21,9 @@ var ChunkServer = function(chunkServerID) {
     var self = this;
 
     if (this instanceof ChunkServer) {
+        
+        this.cache = new Cache(Settings.CACHE_LIMIT, Settings.CACHE_INTERVAL);
+        
         this.chunkServerID = chunkServerID;
         
         var dir = path.join(process.env.HOME, '.nook');
@@ -62,6 +67,7 @@ var ChunkServer = function(chunkServerID) {
                                 'error': error
                             });
                             if (!error) {
+                                self.cache.set(util.format('%s:%s',message.fileName, message.chunkNumber), message.chunk);
                                 self.informer.write({
                                     'type': 'CHUNK_SERVER_CATALOG_CHANGED',
                                     'chunkServerID': self.chunkServerID,
@@ -74,16 +80,27 @@ var ChunkServer = function(chunkServerID) {
                         break;
                     case 'DOWNLOAD_CHUNK':
                         logger.debug('Downloading file [%s] chunk [%s].', message.fileName, message.chunkNumber);
-                        self.storage.load(message.fileName, message.chunkNumber, function(error, data) {
+                        if (self.cache.exists(util.format('%s:%s', message.fileName, message.chunkNumber))) {
                             reply({
                                 'type': 'DOWNLOAD_CHUNK_END',
                                 'chunkServerID': self.chunkServerID,
-                                'error': error,
+                                'error': null,
                                 'fileName': message.fileName,
                                 'chunkNumber': message.chunkNumber,
-                                'chunk': data ? data.toJSON() : ''
+                                'chunk': self.cache.get(util.format('%s:%s', message.fileName, message.chunkNumber))
+                            });                            
+                        } else {
+                            self.storage.load(message.fileName, message.chunkNumber, function(error, data) {
+                                reply({
+                                    'type': 'DOWNLOAD_CHUNK_END',
+                                    'chunkServerID': self.chunkServerID,
+                                    'error': error,
+                                    'fileName': message.fileName,
+                                    'chunkNumber': message.chunkNumber,
+                                    'chunk': data ? data.toJSON() : ''
+                                });
                             });
-                        });
+                        }
                         break;
                     case 'REMOVE_CHUNK':
                         logger.debug('Removing file [%s] chunk [%s].', message.fileName, message.chunkNumber);
@@ -95,6 +112,7 @@ var ChunkServer = function(chunkServerID) {
                                 'error': error
                             });
                             if (!error) {
+                                self.cache.remove(util.format('%s:%s',message.fileName, message.chunkNumber));
                                 self.informer.write({
                                     'type': 'CHUNK_SERVER_CATALOG_CHANGED',
                                     'chunkServerID': self.chunkServerID,
